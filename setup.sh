@@ -1,27 +1,38 @@
 
-
 set -e
+GREEN='\033[0;32m'; NC='\033[0m'
+info() { echo -e "${GREEN}[+]${NC} $1"; }
 
-echo "=== SecureVault Setup ==="
-
-
-python3 -m venv venv
-source venv/bin/activate
-
-
-pip install flask bcrypt cryptography
-
-
-mkdir -p instance
-
-
-python3 - <<'EOF'
-from app import create_app
-app = create_app()
-print("Database initialised successfully.")
-EOF
+cd "$(dirname "$0")"
 
 echo ""
-echo "=== Setup complete ==="
-echo "Run the app with:"
-echo "  source venv/bin/activate && python app.py"
+echo "========================================"
+echo "  Secure Password Manager — Setup"
+echo "  B207 Cyber Security | Gisma University"
+echo "========================================"
+echo ""
+
+# Check Python
+PYTHON=$(command -v python3 || command -v python)
+$PYTHON -c "import sys; assert sys.version_info>=(3,8)" 2>/dev/null \
+  || { echo "Python 3.8+ is required."; exit 1; }
+info "Python OK"
+
+# Virtual environment
+[ -d venv ] || $PYTHON -m venv venv
+source venv/bin/activate
+info "Virtual environment ready"
+
+# Install dependencies
+pip install --upgrade pip -q
+pip install -r requirements.txt -q
+info "Dependencies installed (Flask, bcrypt, cryptography)"
+
+# Initialise database and start app
+info "Starting application..."
+echo ""
+echo "  Open your browser at:  http://127.0.0.1:5000"
+echo "  Press Ctrl+C to stop."
+echo ""
+python -c "from app import init_db; init_db()"
+python app.py
