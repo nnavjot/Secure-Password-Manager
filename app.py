@@ -45,11 +45,64 @@ def init_db():
         CREATE TABLE IF NOT EXISTS passwords (
             id       INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id  INTEGER NOT NULL,
-            site     TEXT    NOT NULL,
-            username TEXT    NOT NULL,
             password TEXT    NOT NULL,
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
     """)
     db.commit()
     db.close()
+
+
+def login_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if "user_id" not in session:
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return decorated
+
+
+@app.route("/")
+def index():
+    if "user_id" in session:
+        return redirect(url_for("dashboard"))
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "").strip()
+        if not username or not password:
+            flash("Both fields are required.", "error")
+            return render_template("register.html")
+        hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+        db = get_db()
+        try:
+            db.execute("INSERT INTO users (username, password) VALUES (?, ?)",
+                       (username, hashed.decode()))
+            db.commit()
+            flash("Account created! Please log in.", "success")
+            return redirect(url_for("login"))
+        except sqlite3.IntegrityError:
+            flash("Username already taken.", "error")
+    return render_template("register.html")
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "").strip()
+        db   = get_db()
+        user = db.execute("SELECT * FROM users WHERE usernam
+            session["username"] = user["username"]
+            return redirect(url_for("dashboard"))
+        flash("Invalid username or password.", "error")
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
