@@ -5,30 +5,21 @@ info() { echo -e "${GREEN}[+]${NC} $1"; }
 
 cd "$(dirname "$0")"
 
-echo ""
-echo "========================================"
-echo "  Secure Password Manager — Setup"
-echo "  B207 Cyber Security | Gisma University"
-echo "========================================"
-echo ""
-
-# Check Python
 PYTHON=$(command -v python3 || command -v python)
 $PYTHON -c "import sys; assert sys.version_info>=(3,8)" 2>/dev/null \
   || { echo "Python 3.8+ is required."; exit 1; }
 info "Python OK"
 
-# Virtual environment
 [ -d venv ] || $PYTHON -m venv venv
 source venv/bin/activate
 info "Virtual environment ready"
 
-# Install dependencies
+
 pip install --upgrade pip -q
 pip install -r requirements.txt -q
 info "Dependencies installed (Flask, bcrypt, cryptography)"
 
-# Initialise database and start app
+
 info "Starting application..."
 echo ""
 echo "  Open your browser at:  http://127.0.0.1:5000"
