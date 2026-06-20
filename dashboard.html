@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+  <h2>Your Vault</h2>
+  <a href="{{ url_for('add_password') }}" class="btn">+ Add Password</a>
+</div>
+
+{% if entries %}
+<div class="card" style="padding:0;overflow:hidden;">
+  <table style="width:100%;border-collapse:collapse;">
+    <thead>
+      <tr style="background:#1c2e4a;color:white;">
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in entries %}
+      <tr style="border-bottom:1px solid #eee;{% if loop.index is odd %}background:#f9f9f9;{% endif %}">
+        <td style="padding:11px 14px;font-weight:bold;">{{ entry.site }}</td>
+        <td style="padding:11px 14px;">{{ entry.username }}</td>
+        <td style="padding:11px 14px;">
+          <span id="pw-{{ entry.id }}" style="font-family:monospace;letter-spacing:2px;">••••••••••</span>
+          <button class="btn btn-sm btn-secondary" style="margin-left:8px;"
+            onclick="togglePw({{ entry.id }}, '{{ entry.password | e }}')">Show</button>
+        </td>
+        <td style="padding:11px 14px;text-align:center;">
+          <form method="POST" action="{{ url_for('delete_password', entry_id=entry.id) }}"
+                onsubmit="return confirm('Delete this entry?');" style="display:inline;">
+            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+  var revealed = {};
+  function togglePw(id, pw) {
+    var el  = document.getElementById("pw-" + id);
+    var btn = el.nextElementSibling;
+    if (revealed[id]) {
+      el.textContent = "••••••••••";
+      el.style.letterSpacing = "2px";
+      btn.textContent = "Show";
+      revealed[id] = false;
+    } else {
+      el.textContent = pw;
+      el.style.letterSpacing = "normal";
+      btn.textContent = "Hide";
+      revealed[id] = true;
+    }
+  }
+</script>
+{% endblock %}
