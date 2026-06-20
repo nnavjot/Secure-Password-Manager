@@ -3,12 +3,10 @@
 <div class="card" style="max-width:480px;margin:0 auto;">
   <h2>Add New Password</h2>
   <form method="POST">
-    <label>Website / Service Name</label>
-    <input type="text" name="site" id="site" required autofocus placeholder="e.g. Google">
-
-    <label>Username / Email</label>
-    <input type="text" name="username" id="username" required placeholder="e.g. user@email.com">
-
+<div style="display:flex;gap:10px;margin-top:4px;">
+      <button type="submit" style="flex:1;">Save Password</button>
+      <a href="{{ url_for('dashboard') }}" class="btn btn-secondary" style="flex:1;text-align:center;">Cancel</a>
+    </div>
     <label>Password</label>
     <div style="display:flex;gap:8px;align-items:center;margin:6px 0 14px;">
       <input type="text" name="password" id="password" required placeholder="Enter or generate a password"
@@ -18,10 +16,7 @@
       </button>
     </div>
 
-    <div style="display:flex;gap:10px;margin-top:4px;">
-      <button type="submit" style="flex:1;">Save Password</button>
-      <a href="{{ url_for('dashboard') }}" class="btn btn-secondary" style="flex:1;text-align:center;">Cancel</a>
-    </div>
+    
   </form>
 </div>
 
