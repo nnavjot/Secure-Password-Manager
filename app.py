@@ -7,12 +7,11 @@ import secrets
 import string
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder=".")
 app.secret_key = "mysecretkey123"
 
 
 csrf = CSRFProtect(app)
-
 
 KEY_FILE = "secret.key"
 if os.path.exists(KEY_FILE):
@@ -129,7 +128,6 @@ def dashboard():
                            (session["user_id"],)).fetchall()
     conn.close()
 
-   
     decrypted = []
     for e in entries:
         decrypted.append({
@@ -178,7 +176,6 @@ def delete(entry_id):
 @app.route("/generate")
 @login_required
 def generate():
-   
     chars = string.ascii_letters + string.digits + "!@#$%"
     password = "".join(secrets.choice(chars) for _ in range(14))
     return {"password": password}
