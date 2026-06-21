@@ -1,55 +1,71 @@
-{% extends "base.html" %}
-{% block content %}
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-  <h2>Your Vault</h2>
-  <a href="{{ url_for('add_password') }}" class="btn">+ Add Password</a>
-</div>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Passwords</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #f2f2f2; }
+        .btn { padding: 6px 12px; background: #008CBA; color: white; border: none; cursor: pointer; text-decoration: none; }
+        .btn-red { background: #f44336; }
+        .msg { color: green; }
+        nav { display: flex; justify-content: space-between; align-items: center; }
+    </style>
+</head>
+<body>
+    <nav>
+        <h2>My Password Vault</h2>
+        <div>
+            <span>Hello, {{ session.username }}</span> |
+            <a href="/logout">Logout</a>
+        </div>
+    </nav>
 
-{% if entries %}
-<div class="card" style="padding:0;overflow:hidden;">
-  <table style="width:100%;border-collapse:collapse;">
-    <thead>
-      <tr style="background:#1c2e4a;color:white;">
-      </tr>
-    </thead>
-    <tbody>
-      {% for entry in entries %}
-      <tr style="border-bottom:1px solid #eee;{% if loop.index is odd %}background:#f9f9f9;{% endif %}">
-        <td style="padding:11px 14px;font-weight:bold;">{{ entry.site }}</td>
-        <td style="padding:11px 14px;">{{ entry.username }}</td>
-        <td style="padding:11px 14px;">
-          <span id="pw-{{ entry.id }}" style="font-family:monospace;letter-spacing:2px;">••••••••••</span>
-          <button class="btn btn-sm btn-secondary" style="margin-left:8px;"
-            onclick="togglePw({{ entry.id }}, '{{ entry.password | e }}')">Show</button>
-        </td>
-        <td style="padding:11px 14px;text-align:center;">
-          <form method="POST" action="{{ url_for('delete_password', entry_id=entry.id) }}"
-                onsubmit="return confirm('Delete this entry?');" style="display:inline;">
-            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}<p class="msg">{{ messages[0] }}</p>{% endif %}
+    {% endwith %}
 
-<script>
-  var revealed = {};
-  function togglePw(id, pw) {
-    var el  = document.getElementById("pw-" + id);
-    var btn = el.nextElementSibling;
-    if (revealed[id]) {
-      el.textContent = "••••••••••";
-      el.style.letterSpacing = "2px";
-      btn.textContent = "Show";
-      revealed[id] = false;
-    } else {
-      el.textContent = pw;
-      el.style.letterSpacing = "normal";
-      btn.textContent = "Hide";
-      revealed[id] = true;
-    }
-  }
-</script>
-{% endblock %}
+    <a href="/add" class="btn">+ Add New Password</a>
+
+    {% if entries %}
+    <table>
+        <tr>
+            <th>Site</th>
+            <th>Username</th>
+            <th>Password</th>
+            <th>Action</th>
+        </tr>
+        {% for e in entries %}
+        <tr>
+            <td>{{ e.site }}</td>
+            <td>{{ e.username }}</td>
+            <td>
+                <span id="pw-{{ e.id }}" style="display:none">{{ e.password }}</span>
+                <span id="mask-{{ e.id }}">••••••••</span>
+                <button onclick="togglePw({{ e.id }})">Show</button>
+            </td>
+            <td><a href="/delete/{{ e.id }}" class="btn btn-red"
+                   onclick="return confirm('Delete this entry?')">Delete</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No passwords saved yet.</p>
+    {% endif %}
+
+    <script>
+        function togglePw(id) {
+            var pw = document.getElementById("pw-" + id);
+            var mask = document.getElementById("mask-" + id);
+            if (pw.style.display === "none") {
+                pw.style.display = "inline";
+                mask.style.display = "none";
+            } else {
+                pw.style.display = "none";
+                mask.style.display = "inline";
+            }
+        }
+    </script>
+</body>
+</html>
